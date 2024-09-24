@@ -1,0 +1,37 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: webshop
+    ports:
+      - "8000:8000" 
+    volumes:
+      - ./webshop:/var/www/html
+    networks:
+      - laravel_network
+    depends_on:
+      - db
+    command: bash -c "chown -R www-data:www-data /var/www/html && chmod -R 775 /var/www/html && composer install && php artisan serve --host=0.0.0.0 --port=8000"
+
+  db:
+    image: mysql:5.7
+    container_name: webshop_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+    ports:
+      - "3306:3306"
+    networks:
+      - laravel_network
+    volumes:
+      - dbdata:/var/lib/mysql
+
+networks:
+  laravel_network:
+    driver: bridge
+
+volumes:
+  dbdata:
